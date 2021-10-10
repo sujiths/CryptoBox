@@ -2,4 +2,6 @@
     <!-- Base application theme. -->
     <style name="Theme.CryptoBox" parent="Theme.AppCompat.Light">
     </style>
+    <style name="Theme.CryptoBox.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
 </resources>

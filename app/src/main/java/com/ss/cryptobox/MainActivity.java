@@ -4,6 +4,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.biometric.BiometricPrompt;
+
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
@@ -39,6 +41,11 @@ public class MainActivity extends AppCompatActivity {
                 super.onAuthenticationSucceeded(result);
                 Toast.makeText(getApplicationContext(),
                         "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+                Intent gotoSecretsIntent = new Intent(getApplicationContext(), SecretsViewActivity.class);
+                Bundle secrets = new Bundle();
+                secrets.putString("secrets", "message");
+                gotoSecretsIntent.putExtras(secrets);
+                startActivity(gotoSecretsIntent);
             }
 
             @Override
