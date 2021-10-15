@@ -4,4 +4,6 @@
     </style>
     <style name="Theme.CryptoBox.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
     </style>
+    <style name="Theme.CryptoBox.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+    </style>
 </resources>

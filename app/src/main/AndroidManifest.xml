@@ -24,6 +24,13 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.CryptoBox.NoActionBar" />
+
+        <activity
+            android:name=".SecretsDialogActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.CryptoBox.Dialog" />
     </application>
 
 </manifest>

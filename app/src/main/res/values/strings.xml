@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">CryptoBox</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="save">file</string>
+    <string name="cancel">cancel</string>
 </resources>
