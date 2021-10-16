@@ -29,8 +29,8 @@ public class SecretsDialogActivity extends AppCompatActivity {
             contentValues.put(Constants.SECRET_NAME, ((EditText) findViewById(R.id.secret_name)).getText().toString());
             if (getContentResolver().insert(Constants.BASE_CONTENT_URI, contentValues) == null) {
                 Log.e(TAG, "Insertion failed");
+                Toast.makeText(this, "Failed to save secret", Toast.LENGTH_SHORT).show();
             }
-            Toast.makeText(this, "Failed to save secret", Toast.LENGTH_SHORT).show();
             Intent gotoSecretsIntent = new Intent(getApplicationContext(), SecretsViewActivity.class);
             Bundle bundle = new Bundle();
             gotoSecretsIntent.putExtras(bundle);
