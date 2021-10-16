@@ -25,17 +25,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        authenticationManager = new AuthenticationManager();
+        if (!authenticationManager.Initialise(this, new MainActivityAuthListenerImpl(this))) {
+            Toast.makeText(this, "Biometric is not available or not enrolled", Toast.LENGTH_LONG).show();
+            this.finish();
+        }
         // Initialise KeyStore
         AppKeyStore appKeyStore = new AppKeyStore();
-
-        authenticationManager = new AuthenticationManager();
-        authenticationManager.Initialise(this, new MainActivityAuthListenerImpl(this));
-
 
         Button biometricLoginButton = findViewById(R.id.login_button);
         biometricLoginButton.setOnClickListener(view -> {
             if (appKeyStore.IsInitialised()) {
-                authenticationManager.requestAuthentication();
+                authenticationManager.RequestAuthentication(this);
             }
         });
     }

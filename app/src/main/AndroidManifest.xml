@@ -29,6 +29,13 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.CryptoBox.Dialog" />
+
+        <provider
+            android:name=".SecretsProvider"
+            android:authorities="com.ss.cryptobox"
+            android:exported="false"
+            android:protectionLevel="signature"
+            android:syncable="true"/>
     </application>
 
 </manifest>
