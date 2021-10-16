@@ -14,9 +14,9 @@
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".SecretsViewActivity"
@@ -24,11 +24,9 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.CryptoBox.NoActionBar" />
-
         <activity
             android:name=".SecretsDialogActivity"
             android:exported="false"
-            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.CryptoBox.Dialog" />
     </application>

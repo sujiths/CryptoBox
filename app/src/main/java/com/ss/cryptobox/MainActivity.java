@@ -42,9 +42,10 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),
                         "Authentication succeeded!", Toast.LENGTH_SHORT).show();
                 Intent gotoSecretsIntent = new Intent(getApplicationContext(), SecretsViewActivity.class);
-                Bundle secrets = new Bundle();
-                secrets.putString("secrets", "message");
-                gotoSecretsIntent.putExtras(secrets);
+                Bundle bundle = new Bundle();
+                bundle.putInt("message_id", Constants.VALIDATE_SECRET_VIEW);
+                bundle.putString("token", "my_token");
+                gotoSecretsIntent.putExtras(bundle);
                 startActivity(gotoSecretsIntent);
             }
 
