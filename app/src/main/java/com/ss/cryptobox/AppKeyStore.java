@@ -88,4 +88,13 @@ public class AppKeyStore {
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         return true;
     }
+
+    public String Encrypt(String clearText) {
+        return null;
+    }
+
+    public String Decrypt(String ClearText) {
+        return null;
+    }
+
 }
