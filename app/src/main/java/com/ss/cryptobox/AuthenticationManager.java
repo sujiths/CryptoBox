@@ -41,7 +41,7 @@ public class AuthenticationManager {
             public void onAuthenticationError(int errorCode,
                                               CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                authListener.onAuthenticationSuccess();
+                authListener.onAuthenticationFailure();
             }
 
             @Override
@@ -81,9 +81,9 @@ public class AuthenticationManager {
     public void RequestAuthentication(Context context) {
         if(isBiometricAuthAvailable(context)) {
             promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .setTitle("Biometric login for my app")
+                    .setTitle("Biometric Login")
                     .setSubtitle("Log in using your biometric credential")
-                    .setNegativeButtonText("Use account password")
+                    .setNegativeButtonText("Cancel")
                     .build();
             biometricPrompt.authenticate(promptInfo);
         }
