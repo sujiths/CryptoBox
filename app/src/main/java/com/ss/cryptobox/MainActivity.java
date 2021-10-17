@@ -7,10 +7,12 @@ import androidx.biometric.BiometricPrompt;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.concurrent.Executor;
@@ -27,18 +29,24 @@ public class MainActivity extends AppCompatActivity {
 
         authenticationManager = new AuthenticationManager();
         if (!authenticationManager.Initialise(this, new MainActivityAuthListenerImpl(this))) {
-            Toast.makeText(this, "Biometric is not available or not enrolled", Toast.LENGTH_LONG).show();
-            this.finish();
-        }
-        // Initialise KeyStore
-        AppKeyStore appKeyStore = new AppKeyStore();
+            TextView warning_message = findViewById(R.id.warning_message);
+            warning_message.setText(R.string.warning);
+            Toast.makeText(this, "Application will exit now", Toast.LENGTH_LONG).show();
+            Button biometricLoginButton = findViewById(R.id.login_button);
 
-        Button biometricLoginButton = findViewById(R.id.login_button);
-        biometricLoginButton.setOnClickListener(view -> {
-            if (appKeyStore.IsInitialised()) {
-                authenticationManager.RequestAuthentication(this);
-            }
-        });
+            biometricLoginButton.setEnabled(false);
+            new MainWindowAsynTask().execute();
+
+        } else {
+            // Initialise KeyStore
+            AppKeyStore appKeyStore = new AppKeyStore();
+            Button biometricLoginButton = findViewById(R.id.login_button);
+            biometricLoginButton.setOnClickListener(view -> {
+                if (appKeyStore.IsInitialised()) {
+                    authenticationManager.RequestAuthentication(this);
+                }
+            });
+        }
     }
 
     private class MainActivityAuthListenerImpl implements IAuthListener {
@@ -62,6 +70,31 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onAuthenticationFailure() {
 
+        }
+    }
+
+    public void QuitOnFailure() {
+        this.finish();
+    }
+
+    // TODO: We don't use params or result, this needs to be corrected or we could use a handler instead and post a delayed message to exit
+    private class MainWindowAsynTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            // sleep 5 seconds in background before exiting
+            try {
+                Thread.sleep(Constants.EXIT_SLEEP_DURATION);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            QuitOnFailure();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
         }
     }
 }

@@ -18,4 +18,6 @@ public class Constants {
 
     public static final String CONTENT_AUTHORITY = "com.ss.cryptobox";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    public static final int EXIT_SLEEP_DURATION = 5000; // 5 seconds
 }
