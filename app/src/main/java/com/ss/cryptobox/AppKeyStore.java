@@ -90,11 +90,11 @@ public class AppKeyStore {
     }
 
     public String Encrypt(String clearText) {
-        return null;
+        return clearText;
     }
 
-    public String Decrypt(String ClearText) {
-        return null;
+    public String Decrypt(String cipherText) {
+        return cipherText;
     }
 
 }

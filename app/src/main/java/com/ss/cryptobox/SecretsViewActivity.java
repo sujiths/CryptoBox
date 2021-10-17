@@ -24,6 +24,7 @@ public class SecretsViewActivity extends AppCompatActivity {
     private final String TAG = "SecretsViewActivity";
     private boolean bGoneBackground = false;
     private AuthenticationManager authenticationManager = null;
+    private AppKeyStore appKeyStore = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,7 @@ public class SecretsViewActivity extends AppCompatActivity {
                 break;
         }
 
+        appKeyStore = new AppKeyStore();
         authenticationManager = new AuthenticationManager();
         authenticationManager.Initialise(this, new SecretsViewActivityAuthListenerImpl(this));
         DisplaySecretsView();
@@ -131,10 +133,17 @@ public class SecretsViewActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 Cursor selection = getContentResolver().query(Constants.BASE_CONTENT_URI, null, null, null, null);
                 selection.move(position + 1);
-                Toast.makeText(getApplicationContext(), "Selected : " +selection.getString(selection.getColumnIndex(Constants.SECRET_NAME)), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), ClearDialogActivity.class));
+                Intent intent = new Intent(getApplicationContext(), ClearDialogActivity.class);
+                String user = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_USRNAME)));
+                String pass = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_PASSWD)));
+                Bundle bundle = new Bundle();
+                bundle.putString("user", user);
+                bundle.putString("pass", pass);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
     }

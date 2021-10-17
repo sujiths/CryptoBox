@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,14 @@ public class ClearDialogActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.display_secrets);
+
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        TextView user = findViewById(R.id.display_user);
+        user.setText(bundle.getString("user"));
+
+        TextView pass = findViewById(R.id.display_pass);
+        pass.setText(bundle.getString("pass"));
 
         Button close_button = findViewById(R.id.close_dialogue);
         close_button.setOnClickListener(view -> {
