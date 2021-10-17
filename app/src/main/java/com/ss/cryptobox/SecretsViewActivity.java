@@ -6,17 +6,19 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.CursorAdapter;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
-import androidx.savedstate.SavedStateRegistryOwner;
+import androidx.appcompat.widget.Toolbar;
 
 public class SecretsViewActivity extends AppCompatActivity {
     private final String TAG = "SecretsViewActivity";
@@ -36,10 +38,28 @@ public class SecretsViewActivity extends AppCompatActivity {
 
         authenticationManager = new AuthenticationManager();
         authenticationManager.Initialise(this, new SecretsViewActivityAuthListenerImpl(this));
-
         DisplaySecretsView();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_items, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.add_new:
+                startActivity(new Intent(getApplicationContext(), SecretsDialogActivity.class));
+                return true;
+            case R.id.settings:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     @Override
     protected void onNewIntent (Intent intent) {
         Log.i(TAG, "onNewIntent");
@@ -99,34 +119,43 @@ public class SecretsViewActivity extends AppCompatActivity {
 
     private void DisplaySecretsView() {
         setContentView(R.layout.secrets_view);
-        ImageButton addSecret = findViewById(R.id.add_secret);
-        addSecret.setOnClickListener(view -> {
-            startActivity(new Intent(getApplicationContext(), SecretsDialogActivity.class));
-        });
 
-        // fetching data in main thread is bad. this is temporary
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_top);
+        setSupportActionBar(toolbar);
 
-        LinearLayout parent = findViewById(R.id.scroll_parent);
-
+        ListView listView = findViewById(R.id.scroller);
         Cursor cursor = getContentResolver().query(Constants.BASE_CONTENT_URI, null, null, null, null);
-        if(cursor.moveToFirst()) {
-            while (!cursor.isAfterLast()) {
-                if(parent != null) {
-                    View view = LayoutInflater.from(this).inflate(R.layout.scroll_item_view, parent, false);
-                    TextView textView = view.findViewById(R.id.secret_name_text);
-                    textView.setText(cursor.getString(cursor.getColumnIndex(Constants.SECRET_NAME)));
-                    if(view != null)
-                        parent.addView(view);
-                }
-                cursor.moveToNext();
+
+        listView.setAdapter(new SecretListAdapter(this, cursor));
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor selection = getContentResolver().query(Constants.BASE_CONTENT_URI, null, null, null, null);
+                selection.move(position + 1);
+                Toast.makeText(getApplicationContext(), "Selected : " +selection.getString(selection.getColumnIndex(Constants.SECRET_NAME)), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), ClearDialogActivity.class));
             }
+        });
+    }
+
+    private class SecretListAdapter extends CursorAdapter {
+
+        public SecretListAdapter(Context context, Cursor cursor) {
+            super(context, cursor, 0);
         }
-        else {
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup parent) {
+            return LayoutInflater.from(context).inflate(R.layout.scroll_item_view, parent, false);
         }
-        if(parent != null) {
-            View view = LayoutInflater.from(this).inflate(R.layout.scroll_item_view, parent, false);
-            if(view != null)
-                parent.addView(view);
+
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+            TextView textView = view.findViewById(R.id.secret_name_text);
+            textView.setText(cursor.getString(cursor.getColumnIndex(Constants.SECRET_NAME)));
         }
+
     }
 }
