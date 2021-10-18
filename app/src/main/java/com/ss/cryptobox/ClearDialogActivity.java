@@ -25,6 +25,10 @@ public class ClearDialogActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
+
+        TextView name = findViewById(R.id.display_name);
+        name.setText(bundle.getString("name"));
+
         TextView user = findViewById(R.id.display_user);
         user.setText(bundle.getString("user"));
 

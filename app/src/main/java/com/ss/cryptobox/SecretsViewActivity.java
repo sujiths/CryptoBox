@@ -139,9 +139,11 @@ public class SecretsViewActivity extends AppCompatActivity {
                 Cursor selection = getContentResolver().query(Constants.BASE_CONTENT_URI, null, null, null, null);
                 selection.move(position + 1);
                 Intent intent = new Intent(getApplicationContext(), ClearDialogActivity.class);
+                String name = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_NAME)));
                 String user = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_USRNAME)));
                 String pass = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_PASSWD)));
                 Bundle bundle = new Bundle();
+                bundle.putString("name", name);
                 bundle.putString("user", user);
                 bundle.putString("pass", pass);
                 intent.putExtras(bundle);
