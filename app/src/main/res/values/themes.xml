@@ -4,6 +4,7 @@
     <style name="Theme.CryptoBox.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:windowBackground">@drawable/dialog_theme</item>
         <item name="android:windowMinWidthMinor">85%</item>
+        <item name="android:textColor">@color/button_blue</item>
     </style>
 
     <style name="Theme.CryptoBox.ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
