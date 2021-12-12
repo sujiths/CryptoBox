@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -139,9 +140,9 @@ public class SecretsViewActivity extends AppCompatActivity {
                 Cursor selection = getContentResolver().query(Constants.BASE_CONTENT_URI, null, null, null, null);
                 selection.move(position + 1);
                 Intent intent = new Intent(getApplicationContext(), ClearDialogActivity.class);
-                String name = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_NAME)));
-                String user = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_USRNAME)));
-                String pass = appKeyStore.Decrypt(selection.getString(selection.getColumnIndex(Constants.SECRET_PASSWD)));
+                String name = appKeyStore.Decrypt(new Pair<byte[], byte[]>(selection.getBlob(selection.getColumnIndex(Constants.SECRET_NAME_IV)),selection.getBlob(selection.getColumnIndex(Constants.SECRET_NAME))));
+                String user = appKeyStore.Decrypt(new Pair<byte[], byte[]>(selection.getBlob(selection.getColumnIndex(Constants.SECRET_USRNAME_IV)),selection.getBlob(selection.getColumnIndex(Constants.SECRET_USRNAME))));
+                String pass = appKeyStore.Decrypt(new Pair<byte[], byte[]>(selection.getBlob(selection.getColumnIndex(Constants.SECRET_PASSWD_IV)),selection.getBlob(selection.getColumnIndex(Constants.SECRET_PASSWD))));
                 Bundle bundle = new Bundle();
                 bundle.putString("name", name);
                 bundle.putString("user", user);
@@ -167,7 +168,8 @@ public class SecretsViewActivity extends AppCompatActivity {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             TextView textView = view.findViewById(R.id.secret_name_text);
-            textView.setText(cursor.getString(cursor.getColumnIndex(Constants.SECRET_NAME)));
+            String name = appKeyStore.Decrypt(new Pair<>(cursor.getBlob(cursor.getColumnIndex(Constants.SECRET_NAME_IV)),cursor.getBlob(cursor.getColumnIndex(Constants.SECRET_NAME))));
+            textView.setText(name);
         }
 
     }

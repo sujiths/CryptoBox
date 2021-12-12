@@ -3,9 +3,12 @@ package com.ss.cryptobox;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
+import android.util.Pair;
 
 import java.io.IOException;
-import 	java.security.KeyStore;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
 
 
 import java.security.InvalidAlgorithmParameterException;
@@ -17,13 +20,20 @@ import java.security.NoSuchProviderException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+
 public class AppKeyStore {
 
-    private String TAG="AppKeyStore";
+    private String TAG = "AppKeyStore";
 
-    public AppKeyStore()
-    {
-        if(!IsInitialised())
+    public AppKeyStore() {
+        if (!IsInitialised())
             initialise();
     }
 
@@ -33,68 +43,90 @@ public class AppKeyStore {
 
             KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
-            KeyStore.Entry entry = keyStore.getEntry(Constants.EC_KEY_ALIAS, null);
-            if(entry != null) {
+            KeyStore.Entry entry = keyStore.getEntry(Constants.AES_KEY_ALIAS, null);
+            if (entry != null) {
                 Log.i(TAG, "Keystore is already initialised");
                 return true;
             }
-        } catch (IOException e) {
-            Log.e(TAG, "Caught Exception in keystore initialisation check " + e.getMessage());
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            Log.e(TAG, "Caught Exception in keystore initialisation check " + e.getMessage());
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Caught Exception in keystore initialisation check " + e.getMessage());
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            Log.e(TAG, "Caught Exception in keystore initialisation check " + e.getMessage());
-            e.printStackTrace();
-        } catch (UnrecoverableEntryException e) {
-            Log.e(TAG, "Caught Exception in keystore initialisation check " + e.getMessage());
+        } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException
+                | UnrecoverableEntryException e) {
+            Log.e(TAG, "Caught Exception " + e.getMessage());
             e.printStackTrace();
         }
         Log.e(TAG, "keystore is not yet initialised");
         return false;
     }
-    private boolean initialise()
-    {
+
+    private boolean initialise() {
         Log.i(TAG, "Initialising keystore");
 
-        KeyPairGenerator keyPairGenerator = null;
+        KeyGenerator AESKeyGenerator = null;
         try {
-            keyPairGenerator = KeyPairGenerator.getInstance(
-                    KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
-            keyPairGenerator.initialize(new KeyGenParameterSpec.Builder(
-                    Constants.EC_KEY_ALIAS,
-                    KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY | KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setDigests(KeyProperties.DIGEST_SHA256,
-                            KeyProperties.DIGEST_SHA512)
-                    .build());
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "Caught Exception in keystore initialisation " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        } catch (NoSuchProviderException e) {
-            Log.e(TAG, "Caught Exception in keystore initialisation " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        } catch (InvalidAlgorithmParameterException e) {
+            AESKeyGenerator = AESKeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+
+            KeyGenParameterSpec AESAlgoParams = new KeyGenParameterSpec.Builder(Constants.AES_KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(256)
+                    .build();
+            AESKeyGenerator.init(AESAlgoParams);
+
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidAlgorithmParameterException
+                e) {
             Log.e(TAG, "Caught Exception in keystore initialisation " + e.getMessage());
             e.printStackTrace();
             return false;
         }
 
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        AESKeyGenerator.generateKey();
+
         return true;
     }
 
-    public String Encrypt(String clearText) {
-        return clearText;
+    public Pair<byte[], byte[]> Encrypt(String clearText) {
+        Pair<byte[], byte[]> retVal = null;
+        KeyStore.SecretKeyEntry secretKeyEntry = null;
+        try {
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(Constants.AES_KEY_ALIAS, null);
+            SecretKey aesKey = secretKeyEntry.getSecretKey();
+            final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+
+            // we need to store the IV also
+            byte[] iv = cipher.getIV();
+            byte[] cipherText = cipher.doFinal(clearText.getBytes());
+            retVal = new Pair<>(iv, cipherText);
+
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | CertificateException
+                | IOException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
+        return retVal;
     }
 
-    public String Decrypt(String cipherText) {
-        return cipherText;
+    public String Decrypt(Pair<byte[], byte[]> cipherText) {
+        String clearText = null;
+        KeyStore.SecretKeyEntry secretKeyEntry = null;
+        try {
+            KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
+            keyStore.load(null);
+            secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(Constants.AES_KEY_ALIAS, null);
+            SecretKey aesKey = secretKeyEntry.getSecretKey();
+            final Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+            final GCMParameterSpec spec = new GCMParameterSpec(128, cipherText.first); // IV
+            cipher.init(Cipher.DECRYPT_MODE, aesKey, spec);
+            final byte[] decodedData = cipher.doFinal(cipherText.second);
+            clearText = new String(decodedData);
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableEntryException | CertificateException | IOException |
+                NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | BadPaddingException | IllegalBlockSizeException e ) {
+            e.printStackTrace();
+        }
+        return clearText;
+
     }
 
 }

@@ -25,9 +25,12 @@ public class SecretsDBHelper extends SQLiteOpenHelper {
         db.execSQL(
                 "CREATE TABLE IF NOT EXISTS " + Constants.TABLE_NAME + " (" +
                         Constants._ID + " INTEGER PRIMARY KEY, " +
-                        Constants.SECRET_NAME + " TEXT UNIQUE NOT NULL, " +
-                        Constants.SECRET_USRNAME + " TEXT NOT NULL, " +
-                        Constants.SECRET_PASSWD + " TEXT NOT NULL" +
+                        Constants.SECRET_NAME + " BLOB UNIQUE NOT NULL, " +
+                        Constants.SECRET_NAME_IV + " BLOB UNIQUE NOT NULL, " +
+                        Constants.SECRET_USRNAME + " BLOB NOT NULL, " +
+                        Constants.SECRET_USRNAME_IV + " BLOB UNIQUE NOT NULL, " +
+                        Constants.SECRET_PASSWD + " BLOB NOT NULL, " +
+                        Constants.SECRET_PASSWD_IV + " BLOB NOT NULL" +
                         ");"
         );
     }
@@ -35,6 +38,5 @@ public class SecretsDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
     }
 }
