@@ -144,6 +144,7 @@ public class SecretsViewActivity extends AppCompatActivity {
                 String user = appKeyStore.Decrypt(new Pair<byte[], byte[]>(selection.getBlob(selection.getColumnIndex(Constants.SECRET_USRNAME_IV)),selection.getBlob(selection.getColumnIndex(Constants.SECRET_USRNAME))));
                 String pass = appKeyStore.Decrypt(new Pair<byte[], byte[]>(selection.getBlob(selection.getColumnIndex(Constants.SECRET_PASSWD_IV)),selection.getBlob(selection.getColumnIndex(Constants.SECRET_PASSWD))));
                 Bundle bundle = new Bundle();
+                bundle.putInt(Constants._ID, selection.getInt(selection.getColumnIndex(Constants._ID)));
                 bundle.putString("name", name);
                 bundle.putString("user", user);
                 bundle.putString("pass", pass);

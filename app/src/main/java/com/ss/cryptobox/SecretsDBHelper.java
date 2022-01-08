@@ -26,9 +26,9 @@ public class SecretsDBHelper extends SQLiteOpenHelper {
                 "CREATE TABLE IF NOT EXISTS " + Constants.TABLE_NAME + " (" +
                         Constants._ID + " INTEGER PRIMARY KEY, " +
                         Constants.SECRET_NAME + " BLOB UNIQUE NOT NULL, " +
-                        Constants.SECRET_NAME_IV + " BLOB UNIQUE NOT NULL, " +
+                        Constants.SECRET_NAME_IV + " BLOB NOT NULL, " +
                         Constants.SECRET_USRNAME + " BLOB NOT NULL, " +
-                        Constants.SECRET_USRNAME_IV + " BLOB UNIQUE NOT NULL, " +
+                        Constants.SECRET_USRNAME_IV + " BLOB NOT NULL, " +
                         Constants.SECRET_PASSWD + " BLOB NOT NULL, " +
                         Constants.SECRET_PASSWD_IV + " BLOB NOT NULL" +
                         ");"

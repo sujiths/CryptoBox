@@ -40,6 +40,19 @@ public class ClearDialogActivity extends AppCompatActivity {
             finish();
         });
 
+        Button delete_button = findViewById(R.id.delete_secret);
+        delete_button.setOnClickListener(view -> {
+            String[] args = new String[1];
+            args[0] = String.valueOf(bundle.getInt(Constants._ID));
+            int cnt = getContentResolver().delete(Constants.BASE_CONTENT_URI, Constants._ID, args);
+            if(cnt < 1) {
+                Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Deleted secret", Toast.LENGTH_SHORT).show();
+            }
+            finish();
+        });
+
 
     }
 }

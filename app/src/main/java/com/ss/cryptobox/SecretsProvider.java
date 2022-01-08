@@ -66,7 +66,12 @@ public class SecretsProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = secretsDBHelper.getWritableDatabase();
+        String table = Constants.TABLE_NAME;
+        String whereClause = Constants._ID+"=?";
+        String[] whereArgs = selectionArgs;
+        Log.e(TAG, " "+whereClause+" "+whereArgs[0]);
+        return db.delete(table, whereClause, whereArgs);
     }
 
     @Override
